@@ -1,6 +1,6 @@
 <template>
-  <v-main>
-    <v-container
+  <v-main class="grey lighten-3 pa-4">
+    <v-container 
       class="fill-height"
       fluid
     >
@@ -44,8 +44,7 @@
                   prepend-icon="mdi-account"
                   type="text"
                   :counter="25"
-                  :rules="nameRules"
-                ></v-text-field>
+                  :rules="nameRules"/>
               </v-form>
             </v-card-text>
             <v-card-actions>
@@ -73,8 +72,13 @@
 import { mapMutations } from 'vuex'
 
 export default {
+  layout: 'empty',
   name: 'index',
-  
+
+  head() {
+    return { title: "Добро пожаловать!" }
+  },
+
   data: () => ({
     valid: true,
     name: "",
@@ -103,7 +107,7 @@ export default {
       }
 
       this.setUser(user)
-      this.$router.push("/chats")
+      this.$router.push("/chat")
     }
   }
 }

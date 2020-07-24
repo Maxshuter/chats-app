@@ -8,10 +8,8 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'chats',
+  name: 'chat',
   middleware: ['chats'],
-  computed: {
-    ...mapGetters(['getUser'])
-  }
+  computed: { ...mapGetters(['getUser']) }
 }
 </script>
