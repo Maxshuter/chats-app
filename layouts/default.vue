@@ -1,29 +1,34 @@
 <template>
   <v-app app>
-    <v-navigation-drawer app  v-model="drawer_chats">
-      <v-list subheader>
+    <v-navigation-drawer app v-model="drawer_chats">
+      <v-list subheader >
         <v-subheader inset>Список чатов</v-subheader>
         <v-list-item
-          v-for="chat in getChats"
-          :key="chat.name"
-          @click="">
+          v-for="(chat, i) in getChats"
+          :key="i"
+          @click="selectСhat(i)">
           <v-list-item-content>
-            <v-list-item-title v-text="chat.name"></v-list-item-title>
+            <v-list-item-title v-text="chat.nameChat"></v-list-item-title>
           </v-list-item-content>
-          <v-list-item-icon>
-            <v-icon>mdi-chat</v-icon>
+          <v-list-item-icon >
+            <v-icon @click="deleteСhat(i)">mdi-delete</v-icon>
           </v-list-item-icon>
         </v-list-item>
       </v-list>
       <v-container>
-        <v-text-field
-           v-show="show"
-           v-model="name"
-           label="Имя чата"
-           name="chat"
-           type="text"
-           :counter="20"
-           :rules="chatRules"/>
+        <v-form ref="form" v-model="valid">
+          <v-text-field
+              append-outer-icon="mdi-close"
+              v-show="show"
+              v-model="name"
+              label="Имя чата"
+              name="chat"
+              type="text"
+              :counter="20"
+              :rules="chatRules"
+              @click:append-outer="show = false"
+              required/>
+        </v-form>
       </v-container>
       <v-row justify="center">
         <v-btn color="primary" @click="createChat">
@@ -52,7 +57,7 @@
 
     <v-app-bar app dark color="primary">
       <v-app-bar-nav-icon @click="drawer_chats = !drawer_chats"/>
-      {{getUser}}
+      {{getUser.name}} <span v-show="getUser.nameChat"> ------> </span> {{getUser.nameChat}}
       <v-spacer></v-spacer>
       <v-btn icon  @click="drawer_user = !drawer_user">
         <v-icon>mdi-account</v-icon>
@@ -72,6 +77,7 @@ import { mapGetters, mapMutations } from 'vuex'
 export default {
   data: () => {
     return {
+      valid: true,
       name: '',
       show: false,
       drawer_chats: true,
@@ -90,8 +96,7 @@ export default {
   },
   computed: { 
     ...mapGetters(['getUser', 'getChats']),
-    ...mapMutations(['setChat']),
-
+    
     btnAddChat () { 
       return {
         text: !this.show ? 'Новый чат' : 'Создать',
@@ -100,15 +105,21 @@ export default {
     }
   },
   methods: {
-    createChat() {
-      const newChat = {
-        name: this.name
-      }
-      if (this.show) { this.$store.commit('setChat', newChat) } //this.setChat(room)
+    ...mapMutations(['setChat', 'deleteChat', 'selectChat']),
 
+    createChat() { 
+      if (this.show) { 
+        if (this.$refs.form.validate()) {
+          const newChat = { nameChat: this.name }
+          this.setChat(newChat)
+        } 
+      } 
+      this.$refs.form.reset()
+      
       return this.show = !this.show
-    }
+    },
+    deleteСhat(i) { this.deleteChat(i) },
+    selectСhat(i) { this.selectChat(this.getChats[i]) }
   }
- //:color="item.active ? 'primary' : 'grey'"
 }
 </script>

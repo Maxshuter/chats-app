@@ -5,7 +5,7 @@ export const state = () => ({
 
 export const getters ={
   getUser(state) {
-    return state.user.name
+    return state.user
   },
   getChats(state) {
     return state.chats
@@ -18,6 +18,12 @@ export const mutations = {
   },
   setChat(state, newChat) {
     state.chats.push(newChat)
+  },
+  deleteChat(state, index) {
+    state.chats.splice(index, 1)
+  },
+  selectChat(state, chat = {}) {
+    state.user = { ...state.user, ...chat }
   }
 } 
 
