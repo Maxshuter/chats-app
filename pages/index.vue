@@ -36,7 +36,7 @@
               </v-tooltip>
             </v-toolbar>
             <v-card-text>
-              <v-form v-model="valid">
+              <v-form ref="form" v-model="valid">
                 <v-text-field
                   v-model="name"
                   label="Login"
@@ -102,12 +102,14 @@ export default {
     },
 
     login() {
-      const user = {
-        name: this.name
+      if (this.$refs.form.validate()) {
+        const user = {
+          name: this.name
+        }
+  
+        this.setUser(user)
+        this.$router.push("/chat")
       }
-
-      this.setUser(user)
-      this.$router.push("/chat")
     }
   }
 }

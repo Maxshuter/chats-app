@@ -1,6 +1,7 @@
 export const state = () => ({
   user: {},
-  chats: []
+  chats: [],
+  messages: []
 })
 
 export const getters ={
@@ -9,6 +10,9 @@ export const getters ={
   },
   getChats(state) {
     return state.chats
+  },
+  getMessages(state) {
+    return state.messages
   }
 }
 
@@ -24,11 +28,23 @@ export const mutations = {
   },
   selectChat(state, chat = {}) {
     state.user = { ...state.user, ...chat }
+  },
+  setUserId(state, id) {
+    state.user = { ...state.user, id }
+  },
+  clearMessages(state) {
+    state.messages = []
+  },
+  clearUser(state) {
+    state.user = {}
+  },
+  SOCKET_newMessage(state, message) {
+    state.messages.push(message)
   }
 } 
 
 export const actions = {
-  SOCKET_message(context, data) {
-    console.log('Message', data)
+  SOCKET_newMessage({ commit }, data) {
+   commit('SOCKET_newMessage', data)
   }
 }

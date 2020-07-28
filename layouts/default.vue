@@ -1,7 +1,7 @@
 <template>
   <v-app app>
     <v-navigation-drawer app v-model="drawer_chats">
-      <v-list subheader >
+      <v-list subheader>
         <v-subheader inset>Список чатов</v-subheader>
         <v-list-item
           v-for="(chat, i) in getChats"
@@ -105,7 +105,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['setChat', 'deleteChat', 'selectChat']),
+    ...mapMutations(['setChat', 'deleteChat', 'selectChat', 'setUserId', 'clearMessages', 'clearUser']),
 
     createChat() { 
       if (this.show) { 
@@ -118,8 +118,20 @@ export default {
       
       return this.show = !this.show
     },
+
     deleteСhat(i) { this.deleteChat(i) },
-    selectСhat(i) { this.selectChat(this.getChats[i]) }
+
+    selectСhat(i) { 
+      this.clearMessages()
+      this.selectChat(this.getChats[i])
+      this.$socket.client.emit('userLogin', this.getUser, data => {
+        if (typeof data === 'string') {
+          console.error(data)
+        } else {
+          this.setUserId(data.userId) 
+        }
+      })
+    }
   }
 }
 </script>
