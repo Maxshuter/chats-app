@@ -27,12 +27,6 @@ export default {
 </script>
 
 <style scoped>
-/* .wrap {
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-} */
-
 .form {
   position: absolute;
   bottom: 0;

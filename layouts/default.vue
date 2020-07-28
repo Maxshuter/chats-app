@@ -11,7 +11,7 @@
             <v-list-item-title v-text="chat.nameChat"></v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon >
-            <v-icon @click="deleteСhat(i)">mdi-delete</v-icon>
+            <v-icon >mdi-delete</v-icon>
           </v-list-item-icon>
         </v-list-item>
       </v-list>
@@ -119,10 +119,20 @@ export default {
       return this.show = !this.show
     },
 
-    deleteСhat(i) { this.deleteChat(i) },
+    deletes() {
+      /*  this.deleteChat(i) */  
+      this.$socket.client.emit('forsedisconnect', this.getUser.nameChat) 
+      this.clearUser()
+      this.clearMessages()
+      console.log('fsdf')
+    },
 
     selectСhat(i) { 
-      this.clearMessages()
+      if (this.getUser.nameChat) {
+        this.$socket.client.emit('forsedisconnect', this.getUser.nameChat) 
+        this.clearUser()
+        this.clearMessages()
+      } 
       this.selectChat(this.getChats[i])
       this.$socket.client.emit('userLogin', this.getUser, data => {
         if (typeof data === 'string') {

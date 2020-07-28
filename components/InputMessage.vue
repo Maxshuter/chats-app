@@ -1,6 +1,11 @@
 <template>
   <v-flex xs12>
-    <v-text-field label="Введите сообщение" outline v-model="text" @keydown.enter="send"/>
+    <v-text-field label="Введите сообщение" 
+      outline 
+      v-model="text"
+      append-outer-icon="mdi-send" 
+      @keydown.enter="send"
+      @click:append-outer="send"/>
   </v-flex>
 </template>
 

@@ -95,12 +95,6 @@ export default {
   methods: {
     ...mapMutations(['setUser']),
 
-    message() {
-      this.$socket.client.emit('setMessage', {
-        text: 'from client'
-      })
-    },
-
     login() {
       if (this.$refs.form.validate()) {
         const user = {

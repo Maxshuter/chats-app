@@ -3,16 +3,14 @@ const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 const users = require('./users')()
 
-//test sockets
 io.on('connection', socket => {
   socket.on('userLogin', (data, callback) => {
     if (!data.name) {
       return callback('Некорректные данные!')
     }
-    console.log(data.nameChat)
+
     socket.join(data.nameChat)
     
-    console.log(socket.id)
     users.remove(socket.id)
     users.add({
       id: socket.id,
@@ -32,7 +30,7 @@ io.on('connection', socket => {
         name: 'admin', 
         text: `${data.name} зашёл в чат!`
       })
-  }),
+  })
 
   socket.on('setMessage', (data, callback) => {
     if (!data.text) {
@@ -48,7 +46,12 @@ io.on('connection', socket => {
       })
     }
     callback()
-  })  
+  })
+  
+  socket.on('forsedisconnect', room => {
+    console.log('leaving room', room);
+    socket.leave(room); 
+  })
 })
 
 server.listen(3001, ()=> {

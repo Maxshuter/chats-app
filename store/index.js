@@ -36,7 +36,7 @@ export const mutations = {
     state.messages = []
   },
   clearUser(state) {
-    state.user = {}
+    delete state.user.nameChat
   },
   SOCKET_newMessage(state, message) {
     state.messages.push(message)
