@@ -11,7 +11,7 @@
             <v-list-item-title v-text="chat.nameChat"></v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon >
-            <v-icon >mdi-delete</v-icon>
+            <v-icon @click="escape(i)">mdi-delete</v-icon>
           </v-list-item-icon>
         </v-list-item>
       </v-list>
@@ -42,14 +42,14 @@
       <v-list subheader>
         <v-subheader inset>Учасники чата</v-subheader>
         <v-list-item
-          v-for="item in items"
-          :key="item.title"
+          v-for="item in getUsers"
+          :key="item.id"
         >
           <v-list-item-content>
-            <v-list-item-title v-text="item.title"></v-list-item-title>
+            <v-list-item-title v-text="item.name"></v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
-            <v-icon :color="item.active ? 'primary' : 'grey'">mdi-chat</v-icon>
+            <v-icon :color="item.id === getUser.id ? 'primary' : 'grey'">mdi-chat</v-icon>
           </v-list-item-icon>
         </v-list-item>
      </v-list>
@@ -57,7 +57,7 @@
 
     <v-app-bar app dark color="primary">
       <v-app-bar-nav-icon @click="drawer_chats = !drawer_chats"/>
-      {{getUser.name}} <span v-show="getUser.nameChat"> ------> </span> {{getUser.nameChat}}
+      {{getUser.name}} <span v-show="getUser.nameChat"> ------> </span> {{this.getUser.nameChat}}
       <v-spacer></v-spacer>
       <v-btn icon  @click="drawer_user = !drawer_user">
         <v-icon>mdi-account</v-icon>
@@ -82,12 +82,6 @@ export default {
       show: false,
       drawer_chats: true,
       drawer_user: true,
-      items: [
-        { active: true, title: 'Jason Oner', avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg' },
-        { active: true, title: 'Ranee Carlson', avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg' },
-        { title: 'Cindy Baker', avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg' },
-        { title: 'Ali Connors', avatar: 'https://cdn.vuetifyjs.com/images/lists/4.jpg' },
-      ],
       chatRules: [
         v => !!v || "Введите имя чата",
         v => (v && v.length <= 20) || "Имя чата не должен превышать 20 символов" 
@@ -95,7 +89,7 @@ export default {
     }
   },
   computed: { 
-    ...mapGetters(['getUser', 'getChats']),
+    ...mapGetters(['getUser', 'getChats', 'getUsers']),
     
     btnAddChat () { 
       return {
@@ -105,7 +99,9 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['setChat', 'deleteChat', 'selectChat', 'setUserId', 'clearMessages', 'clearUser']),
+    ...mapMutations(
+      ['setChat', 'deleteChat', 'selectChat', 
+      'setUserId', 'clearMessages', 'clearUser', 'clearUsers']),
 
     createChat() { 
       if (this.show) { 
@@ -119,28 +115,28 @@ export default {
       return this.show = !this.show
     },
 
-    deletes() {
-      /*  this.deleteChat(i) */  
-      this.$socket.client.emit('forsedisconnect', this.getUser.nameChat) 
-      this.clearUser()
-      this.clearMessages()
-      console.log('fsdf')
+    escape(i) {
+      this.$socket.client.emit('forsedisconnect', this.getUser, ()=> {
+        this.$router.push("/chats") 
+        this.deleteChat(i)  
+        this.clearUser()
+        this.clearUsers()
+      })
     },
 
     selectСhat(i) { 
-      if (this.getUser.nameChat) {
-        this.$socket.client.emit('forsedisconnect', this.getUser.nameChat) 
-        this.clearUser()
-        this.clearMessages()
+      this.$router.push('/chats/' + this.getChats[i].nameChat)
+      if (this.getChats[i].nameChat !== this.$route.params.id) {
+        this.selectChat(this.getChats[i])
+        this.$socket.client.emit('userLogin', this.getUser, data => {
+          if (typeof data === 'string') {
+            console.error(data)
+          } else {
+            this.setUserId(data.userId)
+            this.flag++
+          }
+        })
       } 
-      this.selectChat(this.getChats[i])
-      this.$socket.client.emit('userLogin', this.getUser, data => {
-        if (typeof data === 'string') {
-          console.error(data)
-        } else {
-          this.setUserId(data.userId) 
-        }
-      })
     }
   }
 }

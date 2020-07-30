@@ -97,12 +97,9 @@ export default {
 
     login() {
       if (this.$refs.form.validate()) {
-        const user = {
-          name: this.name
-        }
-  
+        const user = { name: this.name }
         this.setUser(user)
-        this.$router.push("/chat")
+        this.$router.push("/chats")
       }
     }
   }

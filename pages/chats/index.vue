@@ -1,6 +1,8 @@
 <template>
   <v-layout>
-   <h1>hello</h1>
+   <v-row justify="center">
+     <h1 style="color:grey">Добро пожаловать, {{getUser.name}}!</h1>
+    </v-row>
   </v-layout>
 </template>
 
@@ -8,7 +10,9 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'empty',
+  head() {
+    return { title: this.getUser.name }
+  },
   middleware: ['chats'],
   computed: { ...mapGetters(['getUser']) }
 }

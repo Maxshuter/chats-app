@@ -16,8 +16,7 @@ export default {
   }),
   methods: {
     send() {
-      this.$socket.client.emit('setMessage',
-        {
+      this.$socket.client.emit('setMessage', {
           text: this.text,
           id: this.$store.getters.getUser.id
         },

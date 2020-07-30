@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
-    <div class="chat">
-      <Message v-for="(message, i) in getMessages" 
+    <div class="chat" ref="block">
+      <Message v-for="(message, i) in getRoomMessages" 
         :key="i" 
         :name="message.name" 
         :text="message.text" 
@@ -22,7 +22,28 @@ export default {
   name: 'chat',
   middleware: ['chats'],
   components: { Message, InputMessage },
-  computed: { ...mapGetters(['getUser', 'getMessages']) }
+  head() {
+    return { 
+      title: this.getUser.name,  
+      titleTemplate: '%s - ' + this.$route.params.id 
+    }
+  },
+  computed: { 
+    ...mapGetters(['getUser', 'getMessages']),
+    
+    getRoomMessages() { 
+      return this.getMessages
+        .filter(message => message.room === this.$route.params.id || 
+          (message.name === 'admin' && message.room === this.$route.params.id))    
+    },
+  },
+  watch: {
+    getRoomMessages() {
+      this.$nextTick(() => {
+        this.$refs.block.scrollTop = this.$refs.block.scrollHeight
+      })
+    }
+  }
 }
 </script>
 

@@ -1,7 +1,8 @@
 export const state = () => ({
   user: {},
   chats: [],
-  messages: []
+  messages: [],
+  users: []
 })
 
 export const getters ={
@@ -13,7 +14,10 @@ export const getters ={
   },
   getMessages(state) {
     return state.messages
-  }
+  },
+  getUsers(state) {
+    return state.users
+  },
 }
 
 export const mutations = {
@@ -38,13 +42,22 @@ export const mutations = {
   clearUser(state) {
     delete state.user.nameChat
   },
+  clearUsers(state) {
+    state.users = []
+  },
   SOCKET_newMessage(state, message) {
     state.messages.push(message)
+  },
+  SOCKET_updateUsers(state, users) {
+    state.users = users
   }
 } 
 
 export const actions = {
   SOCKET_newMessage({ commit }, data) {
-   commit('SOCKET_newMessage', data)
+    commit('SOCKET_newMessage', data)
+  },
+  SOCKET_updateUsers({ commit }, data) {
+    commit('SOCKET_updateUsers', data)
   }
 }

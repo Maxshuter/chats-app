@@ -19,16 +19,20 @@ io.on('connection', socket => {
     })
 
     callback({ userId: socket.id})
+    io.to(data.nameChat).emit('updateUsers', users.getByAll(data.nameChat))
+
     socket.emit('newMessage', { 
       name: 'admin', 
-      text: `Добро пожаловать в чат, ${data.name}!`
+      text: `Добро пожаловать в чат, ${data.name}!`,
+      room: data.nameChat
     })
    
     socket.broadcast
       .to(data.nameChat)
       .emit('newMessage', { 
         name: 'admin', 
-        text: `${data.name} зашёл в чат!`
+        text: `${data.name} зашёл в чат!`,
+        room: data.nameChat
       })
   })
 
@@ -42,15 +46,38 @@ io.on('connection', socket => {
       io.to(user.nameChat).emit('newMessage', { 
         name: user.name, 
         text: data.text, 
-        id: data.id 
+        id: data.id,
+        room: user.nameChat 
       })
     }
     callback()
   })
   
-  socket.on('forsedisconnect', room => {
-    console.log('leaving room', room);
-    socket.leave(room); 
+  socket.on('forsedisconnect', (data, callback) => {
+    const user = users.remove(data.id)
+    console.log('leaving room', data.nameChat);
+    socket.leave(data.nameChat); 
+    if (user) {
+      io.to(user.nameChat).emit('updateUsers', users.getByAll(user.nameChat))
+      io.to(user.nameChat).emit('newMessage', {
+        name: 'admin', 
+        text: `${user.name} покинул чат!`,
+        room: user.nameChat
+      })
+    }
+    callback()
+  })
+
+  socket.on('disconnect', () => {
+    const user = users.remove(socket.id)
+    if (user) {
+      io.to(user.nameChat).emit('updateUsers', users.getByAll(user.nameChat))
+      io.to(user.nameChat).emit('newMessage', {
+        name: 'admin', 
+        text: `${user.name} покинул чат!`,
+        room: user.nameChat
+      })
+    }
   })
 })
 
