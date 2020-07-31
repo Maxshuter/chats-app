@@ -2,8 +2,22 @@ const app = require('express')()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 const users = require('./users')()
+const chats = require('./chats')()
+const { v4: uuidv4 } = require('uuid')
 
 io.on('connection', socket => {
+
+  socket.on('login', (data, callback) => {
+
+    chats.getAll().forEach(chat => {
+      if(chat.listUsers.indexOf(data.name) != -1) {
+        socket.emit('setChat', {nameChat: chat.name})
+        console.log(chat.name)
+      }  
+    });
+    callback()
+  })
+
   socket.on('userLogin', (data, callback) => {
     if (!data.name) {
       return callback('Некорректные данные!')
@@ -18,9 +32,20 @@ io.on('connection', socket => {
       nameChat: data.nameChat
     })
 
+    if (!chats.get(data.nameChat))
+      chats.add({
+        id: uuidv4(),
+        name: data.nameChat,
+        listUsers: []
+      })
+    
+    if (chats.get(data.nameChat).listUsers.indexOf(data.name) == -1) {
+      chats.addUser(chats.get(data.nameChat), data.name)
+    }
+    
     callback({ userId: socket.id})
     io.to(data.nameChat).emit('updateUsers', users.getByAll(data.nameChat))
-
+        
     socket.emit('newMessage', { 
       name: 'admin', 
       text: `Добро пожаловать в чат, ${data.name}!`,

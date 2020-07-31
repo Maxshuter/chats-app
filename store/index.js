@@ -27,6 +27,9 @@ export const mutations = {
   setChat(state, newChat) {
     state.chats.push(newChat)
   },
+  setChats(state, newChats) {
+    state.chats = newChats
+  },
   deleteChat(state, index) {
     state.chats.splice(index, 1)
   },
@@ -59,5 +62,8 @@ export const actions = {
   },
   SOCKET_updateUsers({ commit }, data) {
     commit('SOCKET_updateUsers', data)
+  },
+  SOCKET_setChat({ commit }, data) {
+    commit('setChat', data)
   }
 }

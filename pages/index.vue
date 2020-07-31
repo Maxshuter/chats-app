@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters} from 'vuex'
 
 export default {
   layout: 'empty',
@@ -92,6 +92,7 @@ export default {
       console.log('Client IO connected')
     }
   },
+  computed: { ...mapGetters(['getUser']) },
   methods: {
     ...mapMutations(['setUser']),
 
@@ -99,7 +100,13 @@ export default {
       if (this.$refs.form.validate()) {
         const user = { name: this.name }
         this.setUser(user)
-        this.$router.push("/chats")
+        this.$socket.client.emit('login', this.getUser, data => {
+          if (typeof data === 'string') {
+            console.error(data)
+          } else {
+            this.$router.push("/chats")
+          }
+        })
       }
     }
   }

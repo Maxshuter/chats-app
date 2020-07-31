@@ -133,7 +133,6 @@ export default {
             console.error(data)
           } else {
             this.setUserId(data.userId)
-            this.flag++
           }
         })
       } 
