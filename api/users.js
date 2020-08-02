@@ -5,6 +5,8 @@ class Users {
 
   add(user) { this.users.push(user) }
 
+  //update(user, data = {}) { user = {...user, ...data } }
+
   get(id) { return this.users.find(user => user.id === id) }
 
   remove(id) {
@@ -14,6 +16,8 @@ class Users {
   }
 
   getByAll(nameChat) { return this.users.filter(user => user.nameChat === nameChat) }
+
+  getAll() { return this.users }
 }
 
 module.exports = function() {

@@ -7,22 +7,23 @@ const { v4: uuidv4 } = require('uuid')
 
 io.on('connection', socket => {
 
-  socket.on('login', (data, callback) => {
+  socket.on('login', (name, callback) => {
+    if (!name) {
+      return callback('Некорректные данные!')
+    } else if (users.getAll().find(user => user.name === name)) {
+      return callback('Пользователь с таким логином уже есть!')
+    }
 
     chats.getAll().forEach(chat => {
-      if(chat.listUsers.indexOf(data.name) != -1) {
+      if (chat.listUsers.indexOf(name) != -1) {
         socket.emit('setChat', {nameChat: chat.name})
-        console.log(chat.name)
       }  
-    });
+    })
     callback()
   })
 
-  socket.on('userLogin', (data, callback) => {
-    if (!data.name) {
-      return callback('Некорректные данные!')
-    }
-
+  socket.on('userJoin', (data, callback) => {
+    
     socket.join(data.nameChat)
     
     users.remove(socket.id)
@@ -47,7 +48,7 @@ io.on('connection', socket => {
     io.to(data.nameChat).emit('updateUsers', users.getByAll(data.nameChat))
         
     socket.emit('newMessage', { 
-      name: 'admin', 
+      system: true, 
       text: `Добро пожаловать в чат, ${data.name}!`,
       room: data.nameChat
     })
@@ -55,7 +56,7 @@ io.on('connection', socket => {
     socket.broadcast
       .to(data.nameChat)
       .emit('newMessage', { 
-        name: 'admin', 
+        system: true, 
         text: `${data.name} зашёл в чат!`,
         room: data.nameChat
       })
@@ -68,12 +69,13 @@ io.on('connection', socket => {
 
     const user = users.get(data.id)
     if (user) {
-      io.to(user.nameChat).emit('newMessage', { 
-        name: user.name, 
-        text: data.text, 
-        id: data.id,
-        room: user.nameChat 
-      })
+      io.to(user.nameChat)
+        .emit('newMessage', { 
+          name: user.name, 
+          text: data.text, 
+          id: data.id,
+          room: user.nameChat 
+        })
     }
     callback()
   })
@@ -84,11 +86,12 @@ io.on('connection', socket => {
     socket.leave(data.nameChat); 
     if (user) {
       io.to(user.nameChat).emit('updateUsers', users.getByAll(user.nameChat))
-      io.to(user.nameChat).emit('newMessage', {
-        name: 'admin', 
-        text: `${user.name} покинул чат!`,
-        room: user.nameChat
-      })
+      io.to(user.nameChat)
+        .emit('newMessage', {
+          system: true, 
+          text: `${user.name} покинул чат!`,
+          room: user.nameChat
+        })
     }
     callback()
   })
@@ -97,11 +100,12 @@ io.on('connection', socket => {
     const user = users.remove(socket.id)
     if (user) {
       io.to(user.nameChat).emit('updateUsers', users.getByAll(user.nameChat))
-      io.to(user.nameChat).emit('newMessage', {
-        name: 'admin', 
-        text: `${user.name} покинул чат!`,
-        room: user.nameChat
-      })
+      io.to(user.nameChat)
+        .emit('newMessage', {
+          system: true, 
+          text: `${user.name} покинул чат!`,
+          room: user.nameChat
+        })
     }
   })
 })

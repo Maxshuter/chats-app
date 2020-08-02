@@ -1,9 +1,6 @@
 <template>
   <v-main class="grey lighten-3 pa-4">
-    <v-container 
-      class="fill-height"
-      fluid
-    >
+    <v-container class="fill-height">
       <v-row
         align="center"
         justify="center"
@@ -14,32 +11,28 @@
           md="4"
         >
           <v-card class="elevation-12">
-            <v-toolbar
-              color="primary"
-              dark
-              flat
-            >
-              <v-toolbar-title>Login form</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    icon
-                    large
-                    target="_blank"
-                    v-on="on"
+            <div class="primary">
+              <v-col>
+                <v-row justify="center">
+                  <v-avatar
+                    class="ma-3"
+                    size="150"
+                    tile
                   >
-                    <v-icon>mdi-code-tags</v-icon>
-                  </v-btn>
-                </template>
-                <span>Source</span>
-              </v-tooltip>
-            </v-toolbar>
+                    <v-img src="chat.png"/>
+                  </v-avatar>
+                </v-row>            
+                <v-row justify="center">
+                  <v-card-title class="white--text">Вход в мессенджер</v-card-title>
+                </v-row>
+            </v-col>
+            </div>
+            
             <v-card-text>
-              <v-form ref="form" v-model="valid">
+              <v-form ref="form" v-model="valid" :lazy-validation="lazy">
                 <v-text-field
                   v-model="name"
-                  label="Login"
+                  label="Ваш логин"
                   name="login"
                   prepend-icon="mdi-account"
                   type="text"
@@ -57,7 +50,7 @@
                   color="primary" 
                   @click="login"
                   >
-                  Login
+                 Войти
                 </v-btn>
               </v-row>
             </v-card-actions>
@@ -65,6 +58,25 @@
         </v-col>
       </v-row>
     </v-container>
+
+    <v-snackbar
+      v-model="snackbar"
+      top
+      color="error"
+      timeout="5000"
+    >
+      {{textError}}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          dark
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Закрыть
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-main>
 </template>
 
@@ -80,11 +92,15 @@ export default {
   },
 
   data: () => ({
+    textError: "",
+    snackbar: false,
     valid: true,
+    lazy: true,
     name: "",
     nameRules: [
       v => !!v || "Введите логин",
-      v => (v && v.length <= 25) || "Логин не должен превышать 25 символов" 
+      v => (v && v.length <= 25) || "Логин не должен превышать 25 символов",
+      v => v.trim() !== "" || "Логин не должен быть пустым"
     ]
   }),
   sockets: {
@@ -98,15 +114,17 @@ export default {
 
     login() {
       if (this.$refs.form.validate()) {
-        const user = { name: this.name }
-        this.setUser(user)
-        this.$socket.client.emit('login', this.getUser, data => {
-          if (typeof data === 'string') {
-            console.error(data)
-          } else {
-            this.$router.push("/chats")
-          }
-        })
+          this.$socket.client.emit('login', this.name, data => {
+            if (typeof data === 'string') {
+              this.textError = data
+              this.snackbar = true
+              console.error(data)
+            } else {
+              const user = { name: this.name }
+              this.setUser(user)
+              this.$router.push("/chats")
+            }
+          })
       }
     }
   }

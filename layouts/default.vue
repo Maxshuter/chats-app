@@ -68,6 +68,25 @@
         <nuxt/>
       </div>
     </v-main>
+    <v-snackbar
+      v-model="snackbar"
+      top
+      left
+      color="error"
+      timeout="5000"
+    >
+      Чат с таким именем уже есть в списке
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          dark
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Закрыть
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -75,19 +94,19 @@
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
-  data: () => {
-    return {
+  data: () => ({
+      snackbar: false,
       valid: true,
-      name: '',
       show: false,
       drawer_chats: true,
       drawer_user: true,
+      name: "",
       chatRules: [
         v => !!v || "Введите имя чата",
-        v => (v && v.length <= 20) || "Имя чата не должен превышать 20 символов" 
+        v => (v && v.length <= 20) || "Имя чата не должен превышать 20 символов",
+        v => (v && v.trim() !== "") || "Имя чата не должно быть пустым",
       ]
-    }
-  },
+  }),
   computed: { 
     ...mapGetters(['getUser', 'getChats', 'getUsers']),
     
@@ -106,8 +125,13 @@ export default {
     createChat() { 
       if (this.show) { 
         if (this.$refs.form.validate()) {
-          const newChat = { nameChat: this.name }
-          this.setChat(newChat)
+          if(this.getChats.find(chat => chat.nameChat === this.name)) {
+            this.snackbar = true 
+          } else {
+            const newChat = { nameChat: this.name }
+            this.setChat(newChat)
+            this.selectСhat(this.getChats.length - 1)
+          }  
         } 
       } 
       this.$refs.form.reset()
@@ -128,7 +152,7 @@ export default {
       this.$router.push('/chats/' + this.getChats[i].nameChat)
       if (this.getChats[i].nameChat !== this.$route.params.id) {
         this.selectChat(this.getChats[i])
-        this.$socket.client.emit('userLogin', this.getUser, data => {
+        this.$socket.client.emit('userJoin', this.getUser, data => {
           if (typeof data === 'string') {
             console.error(data)
           } else {

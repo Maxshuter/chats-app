@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="name === 'admin'" class="system">
+    <div v-if="system" class="system">
       <p class="text-center">{{text}}</p>
     </div>
     <div v-else class="wrap">
@@ -26,6 +26,7 @@ export default {
   props: {
     name: String,
     text: String,
+    system: Boolean,
     owner: {
       type: Boolean,
       default: false

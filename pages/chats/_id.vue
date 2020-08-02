@@ -4,7 +4,8 @@
       <Message v-for="(message, i) in getRoomMessages" 
         :key="i" 
         :name="message.name" 
-        :text="message.text" 
+        :text="message.text"
+        :system="message.system" 
         :owner="message.id === getUser.id"/>
     </div>
     <div class="form">
@@ -34,7 +35,7 @@ export default {
     getRoomMessages() { 
       return this.getMessages
         .filter(message => message.room === this.$route.params.id || 
-          (message.name === 'admin' && message.room === this.$route.params.id))    
+          (message.system && message.room === this.$route.params.id))    
     },
   },
   watch: {
