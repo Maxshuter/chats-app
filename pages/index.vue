@@ -29,15 +29,20 @@
             </div>
             
             <v-card-text>
-              <v-form ref="form" v-model="valid" :lazy-validation="lazy">
-                <v-text-field
-                  v-model="name"
-                  label="Ваш логин"
-                  name="login"
-                  prepend-icon="mdi-account"
-                  type="text"
-                  :counter="25"
-                  :rules="nameRules"/>
+              <v-form 
+                onSubmit="return false;"
+                ref="form" 
+                v-model="valid" 
+                :lazy-validation="lazy">
+                  <v-text-field
+                    v-model="name"
+                    label="Ваш логин"
+                    name="login"
+                    prepend-icon="mdi-account"
+                    type="text"
+                    :counter="25"
+                    :rules="nameRules"
+                    @keydown.enter="login"/>
               </v-form>
             </v-card-text>
             <v-card-actions>
@@ -61,7 +66,8 @@
 
     <v-snackbar
       v-model="snackbar"
-      top
+      bottom
+      right
       color="error"
       timeout="5000"
     >
@@ -114,17 +120,17 @@ export default {
 
     login() {
       if (this.$refs.form.validate()) {
-          this.$socket.client.emit('login', this.name.replace(/ +/g, ' ').trim(), data => {
-            if (typeof data === 'string') {
-              this.textError = data
-              this.snackbar = true
-              console.error(data)
-            } else {
-              const user = { name: this.name }
-              this.setUser(user)
-              this.$router.push("/chats")
-            }
-          })
+        this.$socket.client.emit('login', this.name.replace(/ +/g, ' ').trim(), data => {
+          if (typeof data === 'string') {
+            this.textError = data
+            this.snackbar = true
+            console.error(data)
+          } else {
+            const user = { name: this.name }
+            this.setUser(user)
+            this.$router.push("/chats")
+          }
+        })
       }
     }
   }

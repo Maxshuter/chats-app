@@ -15,7 +15,7 @@ io.on('connection', socket => {
     }
 
     chats.getAll().forEach(chat => {
-      if (chat.listUsers.indexOf(name) != -1) {
+      if (chat.listUsers.indexOf(name) !== -1) {
         socket.emit('setChat', {
           nameChat: chat.name,
           counterMessages: 0
@@ -44,18 +44,18 @@ io.on('connection', socket => {
         listUsers: []
       })
     
-    if (chats.get(data.nameChat).listUsers.indexOf(data.name) == -1) {
-      chats.addUser(chats.get(data.nameChat), data.name)
+  /*   if (chats.get(data.nameChat).listUsers.indexOf(data.name) === -1) {
+      chats.addUser(chats.get(data.nameChat), data.name) */
 
       socket.emit('newMessage', { 
         system: true, 
         text: `Добро пожаловать в чат, ${data.name}!`,
         room: data.nameChat,
       })
-    }
+    
     
     callback({ userId: socket.id})
-    io.to(data.nameChat).emit('updateUsers', users.getByAll(data.nameChat))
+    //io.to(data.nameChat).emit('updateUsers', users.getByAll(data.nameChat))
     
     socket.broadcast
       .to(data.nameChat)
@@ -64,6 +64,12 @@ io.on('connection', socket => {
         text: `${data.name} зашёл в чат!`,
         room: data.nameChat
       })
+
+    
+      chats.getAll().forEach(chat => {
+        io.to(chat.name).emit('updateUsers', users.getByAll(data.nameChat))
+      })
+  
   })
 
   socket.on('setMessage', (data, callback) => {
