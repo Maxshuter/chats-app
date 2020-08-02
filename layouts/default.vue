@@ -11,6 +11,11 @@
             <v-list-item-title v-text="chat.nameChat"></v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon >
+            <div v-if="chat.counterMessages" 
+              class="primary white--text count" 
+              x-small>
+              +{{chat.counterMessages}}
+            </div>
             <v-icon @click="escape(i)">mdi-delete</v-icon>
           </v-list-item-icon>
         </v-list-item>
@@ -108,7 +113,7 @@ export default {
       ]
   }),
   computed: { 
-    ...mapGetters(['getUser', 'getChats', 'getUsers']),
+    ...mapGetters(['getUser', 'getChats', 'getUsers', 'getСounter', 'getMessages']),
     
     btnAddChat () { 
       return {
@@ -120,15 +125,19 @@ export default {
   methods: {
     ...mapMutations(
       ['setChat', 'deleteChat', 'selectChat', 
-      'setUserId', 'clearMessages', 'clearUser', 'clearUsers']),
+      'setUserId', 'clearMessages', 'clearUser', 
+      'clearUsers', 'resetCounterMessages']),
 
     createChat() { 
       if (this.show) { 
         if (this.$refs.form.validate()) {
-          if(this.getChats.find(chat => chat.nameChat === this.name)) {
+          if(this.getChats.find(chat => chat.nameChat === this.name.replace(/ +/g, ' ').trim())) {
             this.snackbar = true 
           } else {
-            const newChat = { nameChat: this.name }
+            const newChat = { 
+              nameChat: this.name, 
+              counterMessages: 0
+            }
             this.setChat(newChat)
             this.selectСhat(this.getChats.length - 1)
           }  
@@ -151,7 +160,8 @@ export default {
     selectСhat(i) { 
       this.$router.push('/chats/' + this.getChats[i].nameChat)
       if (this.getChats[i].nameChat !== this.$route.params.id) {
-        this.selectChat(this.getChats[i])
+        this.selectChat(this.getChats[i].nameChat)
+        this.resetCounterMessages(i)
         this.$socket.client.emit('userJoin', this.getUser, data => {
           if (typeof data === 'string') {
             console.error(data)
@@ -164,3 +174,9 @@ export default {
   }
 }
 </script>
+<style>
+.count {
+  padding: 0 5px;
+  border-radius: 30px;
+}
+</style>

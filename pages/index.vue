@@ -114,7 +114,7 @@ export default {
 
     login() {
       if (this.$refs.form.validate()) {
-          this.$socket.client.emit('login', this.name, data => {
+          this.$socket.client.emit('login', this.name.replace(/ +/g, ' ').trim(), data => {
             if (typeof data === 'string') {
               this.textError = data
               this.snackbar = true

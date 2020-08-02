@@ -16,7 +16,10 @@ io.on('connection', socket => {
 
     chats.getAll().forEach(chat => {
       if (chat.listUsers.indexOf(name) != -1) {
-        socket.emit('setChat', {nameChat: chat.name})
+        socket.emit('setChat', {
+          nameChat: chat.name,
+          counterMessages: 0
+        })
       }  
     })
     callback()
@@ -30,7 +33,8 @@ io.on('connection', socket => {
     users.add({
       id: socket.id,
       name: data.name,
-      nameChat: data.nameChat
+      nameChat: data.nameChat,
+      join: false
     })
 
     if (!chats.get(data.nameChat))
@@ -42,17 +46,17 @@ io.on('connection', socket => {
     
     if (chats.get(data.nameChat).listUsers.indexOf(data.name) == -1) {
       chats.addUser(chats.get(data.nameChat), data.name)
+
+      socket.emit('newMessage', { 
+        system: true, 
+        text: `Добро пожаловать в чат, ${data.name}!`,
+        room: data.nameChat,
+      })
     }
     
     callback({ userId: socket.id})
     io.to(data.nameChat).emit('updateUsers', users.getByAll(data.nameChat))
-        
-    socket.emit('newMessage', { 
-      system: true, 
-      text: `Добро пожаловать в чат, ${data.name}!`,
-      room: data.nameChat
-    })
-   
+    
     socket.broadcast
       .to(data.nameChat)
       .emit('newMessage', { 

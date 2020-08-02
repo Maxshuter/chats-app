@@ -9,11 +9,7 @@ class Chats {
 
   get(room) { return this.chats.find(chat => chat.name === room) }
 
-/*   remove(id) {
-    const user = this.get(id)
-    if (user) { this.users = this.users.filter(user => user.id !== id) }
-    return user
-  } */
+  //remove(listUsers, name) { if(listUsers.indexOf(name) != -1) {listUsers.splice(indexOf(name), 1)}}
 
   getAll() { return this.chats}
 
