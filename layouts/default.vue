@@ -21,8 +21,11 @@
         </v-list-item>
       </v-list>
       <v-container>
-        <v-form ref="form" v-model="valid">
-          <v-text-field
+        <v-form 
+          onSubmit="return false;"
+          ref="form" 
+          v-model="valid">
+            <v-text-field
               append-outer-icon="mdi-close"
               v-show="show"
               v-model="name"
@@ -32,6 +35,7 @@
               :counter="20"
               :rules="chatRules"
               @click:append-outer="show = false"
+              @keydown.enter="createChat"
               required/>
         </v-form>
       </v-container>
