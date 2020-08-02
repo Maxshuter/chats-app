@@ -44,15 +44,15 @@ io.on('connection', socket => {
         listUsers: []
       })
     
-  /*   if (chats.get(data.nameChat).listUsers.indexOf(data.name) === -1) {
-      chats.addUser(chats.get(data.nameChat), data.name) */
+    if (chats.get(data.nameChat).listUsers.indexOf(data.name) === -1) {
+      chats.addUser(chats.get(data.nameChat), data.name)
 
       socket.emit('newMessage', { 
         system: true, 
         text: `Добро пожаловать в чат, ${data.name}!`,
         room: data.nameChat,
       })
-    
+    }
     
     callback({ userId: socket.id})
     //io.to(data.nameChat).emit('updateUsers', users.getByAll(data.nameChat))
